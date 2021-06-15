@@ -129,14 +129,15 @@ public class PublishPulsarRecord extends AbstractPulsarProducerProcessor<byte[]>
 
         try {
             final RecordReader reader = readerFactory.createRecordReader(flowFile, in, getLogger());
+            // in.close();
             final RecordSet recordSet = reader.createRecordSet();
             final RecordSchema schema = writerFactory.getSchema(attributes, recordSet.getSchema());
             final boolean asyncFlag = (context.getProperty(ASYNC_ENABLED).isSet() && context.getProperty(ASYNC_ENABLED).asBoolean());
 
             try {
                 messagesSent.addAndGet(send(producer, writerFactory, schema, reader, topic, asyncFlag, attributes));
-
                 session.putAttribute(flowFile, MSG_COUNT, messagesSent.get() + "");
+                // java.lang.AssertionError: java.lang.IllegalStateException: FlowFile already in use for an active callback or InputStream created by ProcessSession.read(FlowFile) has not been closed
                 session.putAttribute(flowFile, TOPIC_NAME, topic);
                 session.adjustCounter("Messages Sent", messagesSent.get(), true);
                 session.getProvenanceReporter().send(flowFile, getPulsarClientService().getPulsarBrokerRootURL(), "Sent " + messagesSent.get() + " records");

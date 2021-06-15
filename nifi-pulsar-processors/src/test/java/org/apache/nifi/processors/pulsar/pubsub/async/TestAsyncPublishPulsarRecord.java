@@ -41,7 +41,7 @@ public class TestAsyncPublishPulsarRecord extends TestPublishPulsarRecord {
            public boolean matches(byte[] bytes) {
                return true;
            }
-        }))).thenThrow(PulsarClientException.class);
+        }))).thenThrow(new ArrayIndexOutOfBoundsException());
 
        final String content = "Mary Jane, 32";
 
@@ -133,7 +133,7 @@ public class TestAsyncPublishPulsarRecord extends TestPublishPulsarRecord {
     public void testBulkRecordSuccess() throws PulsarClientException {
         StringBuffer sb = new StringBuffer();
 
-        for (int idx = 0; idx < 98634; idx++) {
+        for (int idx = 0; idx < 5; idx++) {
             sb.append("Mary Jane, 32").append("\n");
         }
 
@@ -148,9 +148,9 @@ public class TestAsyncPublishPulsarRecord extends TestPublishPulsarRecord {
 
         MockFlowFile result = results.get(0);
         result.assertContentEquals(sb.toString());
-        result.assertAttributeEquals(PublishPulsarRecord.MSG_COUNT, "98634");
+        result.assertAttributeEquals(PublishPulsarRecord.MSG_COUNT, "5");
         result.assertAttributeEquals(PublishPulsarRecord.TOPIC_NAME, TOPIC_NAME);
 
-        verify(mockClientService.getMockProducer(), times(98634)).sendAsync("\"Mary Jane\",\"32\"\n".getBytes());
+        verify(mockClientService.getMockProducer(), times(5)).sendAsync("\"Mary Jane\",\"32\"\n".getBytes());
     }
 }

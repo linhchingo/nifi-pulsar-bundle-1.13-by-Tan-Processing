@@ -85,6 +85,7 @@ public class TestConsumePulsar extends AbstractPulsarProcessorTest<byte[]> {
 
         runner.setProperty(ConsumePulsar.TOPICS, "foo");
         runner.setProperty(ConsumePulsar.SUBSCRIPTION_NAME, "bar");
+        runner.setProperty(ConsumePulsar.SUBSCRIPTION_TYPE, "Exclusive");
         runner.run(10, true);
         runner.assertAllFlowFilesTransferred(ConsumePulsar.REL_SUCCESS);
 
@@ -111,6 +112,7 @@ public class TestConsumePulsar extends AbstractPulsarProcessorTest<byte[]> {
         runner.setProperty(ConsumePulsar.SUBSCRIPTION_NAME, sub);
         runner.setProperty(ConsumePulsar.CONSUMER_BATCH_SIZE, batchSize + "");
         runner.setProperty(ConsumePulsar.MESSAGE_DEMARCATOR, "\n");
+        runner.setProperty(ConsumePulsar.SUBSCRIPTION_TYPE, "Exclusive");
 
         runner.run(1, true);
 
@@ -148,6 +150,7 @@ public class TestConsumePulsar extends AbstractPulsarProcessorTest<byte[]> {
         runner.setProperty(ConsumePulsar.TOPICS, topic);
         runner.setProperty(ConsumePulsar.SUBSCRIPTION_NAME, sub);
         runner.setProperty(ConsumePulsar.CONSUMER_BATCH_SIZE, 1 + "");
+        runner.setProperty(ConsumePulsar.SUBSCRIPTION_TYPE, "Exclusive");
         runner.run(iterations, true);
 
         runner.assertAllFlowFilesTransferred(ConsumePulsar.REL_SUCCESS);

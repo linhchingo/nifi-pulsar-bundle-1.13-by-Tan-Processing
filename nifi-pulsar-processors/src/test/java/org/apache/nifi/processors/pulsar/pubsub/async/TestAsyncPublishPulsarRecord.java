@@ -133,6 +133,7 @@ public class TestAsyncPublishPulsarRecord extends TestPublishPulsarRecord {
     public void testBulkRecordSuccess() throws PulsarClientException {
         StringBuffer sb = new StringBuffer();
 
+        // Decrease number of loops from 98634 to 5 to reduce time in this test case
         for (int idx = 0; idx < 5; idx++) {
             sb.append("Mary Jane, 32").append("\n");
         }

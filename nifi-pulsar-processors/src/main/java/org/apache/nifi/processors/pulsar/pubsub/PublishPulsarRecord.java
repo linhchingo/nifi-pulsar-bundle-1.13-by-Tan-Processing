@@ -129,7 +129,7 @@ public class PublishPulsarRecord extends AbstractPulsarProducerProcessor<byte[]>
 
         try {
             final RecordReader reader = readerFactory.createRecordReader(flowFile, in, getLogger());
-            // in.close();
+            in.close();
             final RecordSet recordSet = reader.createRecordSet();
             final RecordSchema schema = writerFactory.getSchema(attributes, recordSet.getSchema());
             final boolean asyncFlag = (context.getProperty(ASYNC_ENABLED).isSet() && context.getProperty(ASYNC_ENABLED).asBoolean());

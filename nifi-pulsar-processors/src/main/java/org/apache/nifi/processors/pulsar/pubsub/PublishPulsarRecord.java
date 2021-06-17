@@ -125,19 +125,19 @@ public class PublishPulsarRecord extends AbstractPulsarProducerProcessor<byte[]>
 
         final Map<String, String> attributes = flowFile.getAttributes();
         final AtomicLong messagesSent = new AtomicLong(0L);
-        final InputStream in = session.read(flowFile);
 
-        try {
-            final RecordReader reader = readerFactory.createRecordReader(flowFile, in, getLogger());
-            in.close();
+
+        try (final InputStream in = session.read(flowFile);
+             final RecordReader reader = readerFactory.createRecordReader(flowFile, in, getLogger())){
+
             final RecordSet recordSet = reader.createRecordSet();
             final RecordSchema schema = writerFactory.getSchema(attributes, recordSet.getSchema());
             final boolean asyncFlag = (context.getProperty(ASYNC_ENABLED).isSet() && context.getProperty(ASYNC_ENABLED).asBoolean());
 
             try {
                 messagesSent.addAndGet(send(producer, writerFactory, schema, reader, topic, asyncFlag, attributes));
+                in.close();
                 session.putAttribute(flowFile, MSG_COUNT, messagesSent.get() + "");
-                // java.lang.AssertionError: java.lang.IllegalStateException: FlowFile already in use for an active callback or InputStream created by ProcessSession.read(FlowFile) has not been closed
                 session.putAttribute(flowFile, TOPIC_NAME, topic);
                 session.adjustCounter("Messages Sent", messagesSent.get(), true);
                 session.getProvenanceReporter().send(flowFile, getPulsarClientService().getPulsarBrokerRootURL(), "Sent " + messagesSent.get() + " records");
@@ -148,10 +148,6 @@ public class PublishPulsarRecord extends AbstractPulsarProducerProcessor<byte[]>
 
         } catch (final SchemaNotFoundException | MalformedRecordException | IOException e) {
             session.transfer(flowFile, REL_FAILURE);
-        } finally {
-            try {
-                in.close();
-            } catch (final IOException ioEx) { /* Ignore */ }
         }
     }
 
